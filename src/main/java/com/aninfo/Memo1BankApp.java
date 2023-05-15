@@ -1,7 +1,9 @@
 package com.aninfo;
 
 import com.aninfo.model.Account;
+import com.aninfo.model.Transaction;
 import com.aninfo.service.AccountService;
+import com.aninfo.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +28,8 @@ public class Memo1BankApp {
 
 	@Autowired
 	private AccountService accountService;
+	@Autowired
+	private TransactionService transactionService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Memo1BankApp.class, args);
@@ -74,6 +78,23 @@ public class Memo1BankApp {
 	public Account deposit(@PathVariable Long cbu, @RequestParam Double sum) {
 		return accountService.deposit(cbu, sum);
 	}
+
+	@GetMapping("/accounts/{cbu}/transaction")
+	public Collection<Transaction> getTransactionsForAccount(@PathVariable Long cbu){ return transactionService.findByCbu(cbu); }
+	@PostMapping("accounts/{cbu}/transaction")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Transaction createTransaction(@PathVariable Long cbu,@RequestParam String type,@RequestParam Double amount){ return  transactionService.createTransaction(cbu, type, amount);}
+	@GetMapping("/transaction/{id}")
+	public ResponseEntity<Transaction> getTransaction(@PathVariable long id){
+		Optional<Transaction> transactionOptional = transactionService.findById(id);
+		return ResponseEntity.of(transactionOptional);
+	}
+	@DeleteMapping("/transaction/{id}")
+	public void deleteTransaction(@PathVariable Long id){ transactionService.deleteById(id); }
+
+	@GetMapping("/transactions")
+	public Collection<Transaction> getTransactions(){ return transactionService.getTransactions();}
+
 
 	@Bean
 	public Docket apiDocket() {
